@@ -1,0 +1,13 @@
+[Unit]
+Description=AllNode Software
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/allnode_software
+ExecStart=/usr/bin/node /opt/allnode_software/app.js
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
