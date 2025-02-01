@@ -85,7 +85,7 @@
 
                 if (response.ok) {
                     const result = await response.text();
-                    showModal(`Connected to: ${result}`);
+                    showModal(`${result}`);
                 } else {
                     const error = await response.text();
                     showModal(`Error: ${error}`);
