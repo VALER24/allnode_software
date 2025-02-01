@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearNode</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ClearNode Interface</h1>
+        <form id="connectForm" class="form">
+            <label for="mode">Select Mode:</label>
+            <select id="mode" name="mode" required>
+                <option value="">--Select Mode--</option>
+                <option value="ALLSTAR">ALLSTAR</option>
+                <option value="ECHOLINK">ECHOLINK</option>
+                <option value="BRANDMEISTER">Brandmeister</option> <!-- New Option -->
+                <option value="DMR">DMR</option>
+                <option value="YSF">YSF</option>
+                <option value="NXDN">NXDN</option>
+                <option value="P25">P25</option>
+            </select>
+            <div id="nodeInput" class="input-group" style="display: none;">
+                <label for="nodeNumber">Node Number:</label>
+                <input type="text" id="nodeNumber" name="nodeNumber" placeholder="Enter node number">
+            </div>
+            <div id="talkgroupInput" class="input-group" style="display: none;">
+                <label for="talkgroup">Talkgroup:</label>
+                <input type="text" id="talkgroup" name="talkgroup" placeholder="Enter talkgroup">
+            </div>
+            <button type="submit" class="btn">Connect</button>
+        </form>
+    </div>
+
+    <!-- Modal for popup message -->
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <p id="modalMessage"></p>
+        <button onclick="closeModal()" class="btn">Close</button>
+    </div>
+
+    <script>
+        const modeSelect = document.getElementById('mode');
+        const nodeInput = document.getElementById('nodeInput');
+        const talkgroupInput = document.getElementById('talkgroupInput');
+        const connectForm = document.getElementById('connectForm');
+        const modal = document.getElementById('modal');
+        const overlay = document.getElementById('overlay');
+        const modalMessage = document.getElementById('modalMessage');
+
+        // Show/hide input fields based on mode selection
+        modeSelect.addEventListener('change', () => {
+            const selectedMode = modeSelect.value;
+            if (selectedMode === 'ALLSTAR' || selectedMode === 'ECHOLINK') {
+                nodeInput.style.display = 'block';
+                talkgroupInput.style.display = 'none';
+            } else if (selectedMode === 'BRANDMEISTER' || selectedMode === 'DMR' || selectedMode === 'YSF' || selectedMode === 'NXDN' || selectedMode === 'P25') {
+                nodeInput.style.display = 'none';
+                talkgroupInput.style.display = 'block';
+            } else {
+                nodeInput.style.display = 'none';
+                talkgroupInput.style.display = 'none';
+            }
+        });
+
+        // Handle form submission
+        connectForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(connectForm);
+            const payload = {};
+            formData.forEach((value, key) => {
+                payload[key] = value;
+            });
+
+            try {
+                const response = await fetch('/connect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(payload).toString(),
+                });
+
+                if (response.ok) {
+                    const result = await response.text();
+                    showModal(`Connected to: ${result}`);
+                } else {
+                    const error = await response.text();
+                    showModal(`Error: ${error}`);
+                }
+            } catch (error) {
+                showModal(`Error: ${error.message}`);
+            }
+        });
+
+        // Show modal with message
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
